@@ -22,5 +22,5 @@ STEP III: run the model
 
 Credits 
 ------------
-Credits to Margherita Rosnati & Vincent Fortuin for their implementation
+Credits to Margherita Rosnati & Vincent Fortuin for their implementation.
 Credits to M. Moor for sharing his code from https://arxiv.org/abs/1902.01659

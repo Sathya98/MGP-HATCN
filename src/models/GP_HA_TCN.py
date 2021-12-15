@@ -7,10 +7,10 @@ cwd = os.path.dirname(os.path.abspath(__file__))
 head = os.path.abspath(os.path.join(cwd, os.pardir, os.pardir, os.pardir))
 sys.path.append(head)
 from src.models.GP import MultiKernelMGPLayer
-from src.models.attTCN import AttTCN
+from src.models.HA_TCN import HATCN
 
 
-class GPattTCN:
+class GPHATCN:
     def __init__(self,
                  time_window,
                  n_mc_samples,
@@ -31,7 +31,7 @@ class GPattTCN:
                  num_layers=4,
                  kernel_size=2,
                  stride=1,
-                 sigmoid_beta=False,
+                 residual=True,
                  moor_data=False
                  ):
         # a few variables to be used later
@@ -49,18 +49,18 @@ class GPattTCN:
                                       add_diag=add_diag,
                                       save_path=save_path)
 
-        self.attTCN = AttTCN(time_window,
+        self.HATCN = HATCN(time_window,
                              n_features + n_stat_features,
                              num_layers,
                              DO,
                              L2reg,
                              kernel_size=kernel_size,
                              stride=stride,
-                             sigmoid_beta=sigmoid_beta
+                             residual=residual
                              )
 
         self.trainable_variables = self.GP.trainable_variables + \
-                                   self.attTCN.trainable_variables
+                                   self.HATCN.trainable_variables
         self.n_GP_var = len(self.GP.trainable_variables)
 
     def __call__(self, inputs):
@@ -77,15 +77,15 @@ class GPattTCN:
 
         self.TCN_input = tf.concat([self.GP_out, stat_matching_shape], -1)
 
-        return self.attTCN(self.TCN_input)
+        return self.HATCN(self.TCN_input)
 
     def get_weights(self):
         self.trainable_variables = self.GP.trainable_variables + \
-                                   self.attTCN.trainable_variables
+                                   self.HATCN.trainable_variables
         return self.trainable_variables
 
     def set_weights(self, weights):
         if not isinstance(weights[0], np.ndarray):
             weights = [weights[i].numpy() for i in range(len(weights))]
         self.GP.set_weights(weights[:self.n_GP_var])
-        self.attTCN.set_weights(weights[self.n_GP_var:])
+        self.HATCN.set_weights(weights[self.n_GP_var:])

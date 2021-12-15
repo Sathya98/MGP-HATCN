@@ -9,7 +9,7 @@ head = os.path.abspath(os.path.join(cwd, os.pardir, os.pardir))
 sys.path.append(head)
 from src.utils.debug import t_print 
 from src.data_loader.loader import DataGenerator
-from src.models.GP_attTCN import GPattTCN
+from src.models.GP_HA_TCN import GPHATCN
 from src.trainers.trainer import Trainer
 
 
@@ -34,7 +34,7 @@ def main(
         stride,
         DO,
         L2reg,
-        sigmoid_beta,
+        residual,
         # training
         learning_rate,
         batch_size,
@@ -64,7 +64,7 @@ def main(
         "stride": stride,
         "DO": DO,
         "L2reg": L2reg,
-        "sigmoid_beta": sigmoid_beta,
+        "residual":residual,
         # training
         "learning_rate": learning_rate,
         "batch_size": batch_size,
@@ -93,7 +93,7 @@ def main(
     global_step = tf.Variable(0)
 
     # Load model
-    model = GPattTCN(time_window,
+    model = GPHATCN(time_window,
                      no_mc_samples,
                      n_features,
                      n_stat_features,
@@ -103,7 +103,7 @@ def main(
                      num_layers=num_layers,
                      kernel_size=kernel_size,
                      stride=stride,
-                     sigmoid_beta=sigmoid_beta)
+                     residual=residual)
 
     # Initialise trainer
     trainer = Trainer(model=model,
@@ -153,8 +153,7 @@ if __name__=="__main__":
     stride = 1
     DO = [0.01] * 10
     L2reg = [0.000001] * 10
-    sigmoid_beta = True
-
+    residual = True
     # training
     learning_rate = 0.0005
     batch_size = 128
@@ -190,7 +189,7 @@ if __name__=="__main__":
         stride,
         DO,
         L2reg,
-        sigmoid_beta,
+        residual,
         # training
         learning_rate,
         batch_size,
